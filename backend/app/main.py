@@ -1,0 +1,48 @@
+import uvicorn
+from fastapi import FastAPI
+# from fastapi.middleware.cors import CORSMiddleware
+from app.config import db
+# from app.service.auth_service import generate_role
+
+# origins= [
+#     "http://localhost:3000"
+# ]
+
+def init_app():
+    db.init()
+
+    app = FastAPI(
+        title= "Chess Rating App",
+        description= "Rating app",
+        version= "1"
+    )
+
+    # app.add_middleware(
+    #     CORSMiddleware,
+    #     allow_origins=origins,
+    #     allow_credentials=True,
+    #     allow_methods=["*"],
+    #     allow_headers=["*"]
+    # )
+
+    @app.on_event("startup")
+    async def starup():
+        await db.create_all()
+        await generate_role()
+    
+    @app.on_event("shutdown")
+    async def shutdown():
+        await db.close()
+
+    from app.controller import authentication, users  # Uncomment this line
+
+    app.include_router(authentication.router)  # Replace 'authentication' with the name of your router
+    app.include_router(users.router)  # Uncomment this line if you have another router
+
+    return app
+
+app = init_app()
+
+def start():
+    """Launched with 'poetry run start' at root level """
+    uvicorn.run("app.main:app", host="localhost", port=8888, reload=True)
