@@ -34,10 +34,10 @@ def init_app():
     async def shutdown():
         await db.close()
 
-    from app.controller import authentication, users  # Uncomment this line
+    from app.controller import authentication, users 
 
-    app.include_router(authentication.router)  # Replace 'authentication' with the name of your router
-    app.include_router(users.router)  # Uncomment this line if you have another router
+    app.include_router(authentication.router)  
+    app.include_router(users.router)  
 
     return app
 
